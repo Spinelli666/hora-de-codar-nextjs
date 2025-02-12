@@ -1,11 +1,24 @@
+import Button from "@/components/Button";
 import { db } from "@/db";
 import Link from "next/link";
+
+import { deleteTodo } from "@/actions";
 
 export default async function Home() {
   // 3 - Resgatando dados do banco
   const todos = await db.todo.findMany();
 
-  console.log(todos);
+  // async function deleteTodo(formData) {
+  //   'use server'
+
+  //   const id = Number(formData.get('id'))
+
+  //   await db.todo.delete({
+  //     where: { id }
+  //   })
+
+  //   redirect('/')
+  // }
 
   return (
     <>
@@ -27,14 +40,15 @@ export default async function Home() {
                     Visualizar
                   </Link>
                   <Link
-                    href={`/todos/edit/${todo.id}`}
+                    href={`/todos/${todo.id}/edit`}
                     className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
                   >
                     Editar
                   </Link>
-                  <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                    Excluir
-                  </button>
+                  <form action={deleteTodo}>
+                    <input type="hidden" name="id" value={todo.id}/>
+                    <Button>Excluir</Button>
+                  </form>
                 </div>
               </div>
             </div>

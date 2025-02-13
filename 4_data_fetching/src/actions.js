@@ -1,6 +1,7 @@
 'use server'
 
 import { db } from "@/db";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function deleteTodo(formData) {
@@ -11,6 +12,10 @@ export async function deleteTodo(formData) {
       where: { id }
     })
 
+    // revalidatePath, pode estar em projetos junto com force dynamic
+    revalidatePath('/')
+
+    // redirect = return
     redirect('/')
   }
 
@@ -71,4 +76,29 @@ export async function updateTodo(formState, formData) {
   });
 
   redirect("/");
+}
+
+export async function toggleTodoStatus(formData) {
+
+  const todoId = Number(formData.get('id'))
+
+  const todo = await db.todo.findFirst({
+    where: { id: todoId },
+  })
+
+  if(!todo) {
+    throw new Error('Todo not found')
+  }
+
+  const novoStatus = todo.status === 'pendente' ? 'feito' : 'pendente'
+
+
+  await db.todo.update({
+    where: { id: todoId },
+    data: { status: novoStatus },
+  })
+
+  revalidatePath('/')
+
+  redirect('/')
 }
